@@ -169,3 +169,9 @@ func TestParse(t *testing.T) {
 		})
 	}
 }
+
+func TestParse1(t *testing.T) {
+	result, err := Parse("DBABBg~BUoAAAA")
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(result.Sections))
+}
