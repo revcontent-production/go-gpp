@@ -274,3 +274,9 @@ func (bs *BitStream) ReadTwoBitField(numFields int) ([]byte, error) {
 
 	return result, nil
 }
+
+func DecodedLength(encoded string) int {
+	buff := []byte(encoded)
+	decoded := make([]byte, base64.RawURLEncoding.DecodedLen(len(buff)))
+	return len(decoded)
+}
