@@ -2,12 +2,12 @@ package gpp
 
 import (
 	"fmt"
+	"github.com/revcontent-production/go-gpp/constants"
 	"github.com/revcontent-production/go-gpp/sections"
 	"github.com/revcontent-production/go-gpp/sections/uspca"
 	"github.com/revcontent-production/go-gpp/sections/uspva"
 	"testing"
 
-	"github.com/revcontent-production/go-gpp/constants"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -172,6 +172,12 @@ func TestParse(t *testing.T) {
 
 func TestParse1(t *testing.T) {
 	result, err := Parse("DBABBg~BUoAAAA")
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(result.Sections))
+}
+
+func TestParse2(t *testing.T) {
+	result, err := Parse("DBABTYA~1YNY~000001010101010000101010000000000000000000000000000000010101")
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(result.Sections))
 }
