@@ -174,10 +174,16 @@ func TestParse1(t *testing.T) {
 	result, err := Parse("DBABBg~BUoAAAA")
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(result.Sections))
-}
 
-func TestParse2(t *testing.T) {
-	result, err := Parse("DBABTYA~1YNY~000001010101010000101010000000000000000000000000000000010101")
+	result, err = Parse("DBABTYA~1YNY~000001010101010000101010000000000000000000000000000000010101")
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(result.Sections))
+
+	result, err = Parse("DBABM~")
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(result.Sections))
+
+	result, err = Parse("DBABBg~BAAAAAA")
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(result.Sections))
 }
