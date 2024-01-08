@@ -199,3 +199,14 @@ func TestParse1(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(result.Sections))
 }
+
+func TestParse2(t *testing.T) {
+	//result, err := Parse("DBABRg~BVoAAA")
+	result, err := Parse("DBABRgA~bSFgmiU")
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(result.Sections))
+
+	result, err = Parse("DBABFg~BVKAAAA")
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(result.Sections))
+}
