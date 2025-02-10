@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	SectionGPPByte  byte = 'D'
-	MaxHeaderLength      = 3
+	SectionGPPByte      byte = 'D'
+	MinHeaderCharacters      = 4
 )
 
 type GppContainer struct {
@@ -36,30 +36,17 @@ func Parse(v string) (GppContainer, []error) {
 
 	sectionStrings := strings.Split(v, "~")
 
-	// IAB's base64 conversion means a 6 bit grouped value can be converted to 8 bit bytes.
-	// Any leftover bits <8 would be skipped in normal base64 decoding.
-	// Therefore, pad with 6 '0's w/ `A` to ensure that all bits are decoded into bytes.
-	headerString := sectionStrings[0]
-	for {
-		headerString += "A"
-		if len(headerString) >= 6 {
-			break
-		}
+	header := sectionStrings[0]
+	if err := failFastHeaderValidate(header); err != nil {
+		return gpp, []error{err}
 	}
-	bs, err := util.NewBitStreamFromBase64(headerString)
+
+	bs, err := util.NewBitStreamFromBase64(header)
+
 	if err != nil {
 		return gpp, []error{fmt.Errorf("error parsing GPP header, base64 decoding: %s", err)}
 	}
-	if bs.Len() < MaxHeaderLength {
-		return gpp, []error{fmt.Errorf("error parsing GPP header, should be at least %d bytes long", MaxHeaderLength)}
-	}
 
-	// base64 encoding codes just 6 bits into each byte. The first 6 bits of the header must always evaluate
-	// to the integer '3' as the GPP header type. Short cut the processing of a 6 bit integer with a simple
-	// byte comparison to shave off a few CPU cycles.
-	if sectionStrings[0][0] != SectionGPPByte {
-		return gpp, []error{fmt.Errorf("error parsing GPP header, header must have type=%d", constants.SectionGPP)}
-	}
 	// We checked the GPP header type above outside of the bitstream framework, so we advance the bit stream past the first 6 bits.
 	bs.SetPosition(6)
 
@@ -137,6 +124,24 @@ func Parse(v string) (GppContainer, []error) {
 	gpp.Sections = sections
 
 	return gpp, errs
+}
+
+// failFastHeaderValidate performs quick validations of the header section before decoding
+// the bit stream.
+func failFastHeaderValidate(h string) error {
+	// the GPP header must be at least 24 bits to represent the type, version, and a fibonacci sequence
+	// of at least 1 item. this requires at least 4 characters.
+	if len(h) < MinHeaderCharacters {
+		return fmt.Errorf("error parsing GPP header, should be at least %d bytes long", MinHeaderCharacters)
+	}
+
+	// base64-url encodes 6 bits into each character. the first 6 bits of GPP header must always
+	// evaluate to the integer '3', so we can short cut by checking the first character directly.
+	if h[0] != SectionGPPByte {
+		return fmt.Errorf("error parsing GPP header, header must have type=%d", constants.SectionGPP)
+	}
+
+	return nil
 }
 
 type GenericSection struct {
