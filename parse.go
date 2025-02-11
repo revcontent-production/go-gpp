@@ -42,7 +42,6 @@ func Parse(v string) (GppContainer, []error) {
 	}
 
 	bs, err := util.NewBitStreamFromBase64(header)
-
 	if err != nil {
 		return gpp, []error{fmt.Errorf("error parsing GPP header, base64 decoding: %s", err)}
 	}
